@@ -1,0 +1,54 @@
+import psutil
+from datetime import datetime
+
+# Define thresholds
+CPU_THRESHOLD = 80
+MEMORY_THRESHOLD = 80
+DISK_THRESHOLD = 80
+LOG_FILE = "/var/log/system_health.log"
+
+def log_message(message):
+    """Log a message with a timestamp to the log file."""
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    with open(LOG_FILE, 'a') as f:
+        f.write(f"{timestamp} - {message}\n")
+    print(f"{timestamp} - {message}")
+
+def check_cpu_usage():
+    """Check CPU usage and log an alert if threshold is exceeded."""
+    cpu_usage = psutil.cpu_percent(interval=1)
+    if cpu_usage > CPU_THRESHOLD:
+        log_message(f"ALERT: High CPU usage detected: {cpu_usage}%")
+    return cpu_usage
+
+def check_memory_usage():
+    """Check memory usage and log an alert if threshold is exceeded."""
+    memory = psutil.virtual_memory()
+    memory_usage = memory.percent
+    if memory_usage > MEMORY_THRESHOLD:
+        log_message(f"ALERT: High memory usage detected: {memory_usage}%")
+    return memory_usage
+
+def check_disk_usage():
+    """Check disk space usage and log an alert if threshold is exceeded."""
+    disk = psutil.disk_usage('/')
+    disk_usage = disk.percent
+    if disk_usage > DISK_THRESHOLD:
+        log_message(f"ALERT: High disk space usage detected: {disk_usage}%")
+    return disk_usage
+
+def check_process_count():
+    """Check the number of running processes and log the count."""
+    process_count = len(psutil.pids())
+    log_message(f"INFO: Number of running processes: {process_count}")
+    return process_count
+
+def main():
+    """Main function to check system health."""
+    check_cpu_usage()
+    check_memory_usage()
+    check_disk_usage()
+    check_process_count()
+
+if __name__ == "__main__":
+    main()
